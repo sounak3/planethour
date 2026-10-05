@@ -50,6 +50,12 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.5.2</version>
+          <configuration>
+            <!-- Build agents may have no display. -->
+            <systemPropertyVariables>
+              <java.awt.headless>true</java.awt.headless>
+            </systemPropertyVariables>
+          </configuration>
         </plugin>
       </plugins>
     </build>
