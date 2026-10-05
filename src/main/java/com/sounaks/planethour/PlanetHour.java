@@ -1,5 +1,5 @@
 /*
- * File: MyFrame.java in java package hour is part of application
+ * File: PlanetHour.java in java package com.sounaks.planethour is part of application
  * PlanetHour v1.0 - Planetary hour calculation software
  * Copyright (C) 2014 Sounak Choudhury
  * 
@@ -18,7 +18,7 @@
  * 
  * Contact E-mail: sounak_s@rediffmail.com
  */
-package hour;
+package com.sounaks.planethour;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.SystemTray;
@@ -41,14 +41,14 @@ import javax.swing.SwingUtilities;
  *
  * The main class for Planetary Hour application
  */
-public class MyFrame extends javax.swing.JFrame implements Runnable {
+public class PlanetHour extends javax.swing.JFrame implements Runnable {
     private boolean debug=false;
     /**
      *
-     * Creates new form MyFrame, initializes database, components, default values and starts updater thread
+     * Creates new form PlanetHour, initializes database, components, default values and starts updater thread
      *
      */
-    public MyFrame() {
+    public PlanetHour() {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             con = java.sql.DriverManager.getConnection("jdbc:derby:cities.db;create=true");
@@ -64,18 +64,18 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
             rs.close();
             ps.close();
         } catch (ClassNotFoundException cnfe) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, "The Specified Driver Does not Exist...", cnfe);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "The Specified Driver Does not Exist...", cnfe);
         } catch (SQLException sqle) {
             if (sqle.getErrorCode() == 0) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, "No Suitable Driver Found...", sqle);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "No Suitable Driver Found...", sqle);
             } else if (sqle.getErrorCode() == 1017) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, "Wrong UserName Or Password...", sqle);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Wrong UserName Or Password...", sqle);
             } else if (sqle.getErrorCode() == 1034) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, "Database not Started...", sqle);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Database not Started...", sqle);
             }
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, sqle.getErrorCode() + ", " + sqle.getSQLState(), sqle);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, sqle.getErrorCode() + ", " + sqle.getSQLState(), sqle);
         } catch (NumberFormatException nfe) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, "Error parsing window location from db...", nfe);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Error parsing window location from db...", nfe);
         } finally {
             selectedCity = getSelectedPlaceRecord();
         }
@@ -190,7 +190,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         try {
             oneSecThread.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
         }
         thl = null;
         nhl = null;
@@ -278,7 +278,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
             rs.close();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
         }
         return selectedKey;
     }
@@ -305,7 +305,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
             rs.close();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             return "Error occurred while adding city " + city + ": " + ex.getMessage();
         }
         if (recordExists) {
@@ -318,7 +318,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                         ps.executeUpdate();
                         ps.close();
                     } catch (SQLException ex) {
-                        Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                         return "Error occurred while adding city " + city + ": " + ex.getMessage();
                     }
                     break;
@@ -342,7 +342,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 ps.executeUpdate();
                 ps.close();
             } catch (SQLException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                 return "Error occurred while adding city " + city + ": " + ex.getMessage();
             }
         }
@@ -366,7 +366,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
             rs.close();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             return "Error occurred while deleting city " + city + ": " + ex.getMessage();
         }
         if (recordExists) {
@@ -379,7 +379,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                         ps.executeUpdate();
                         ps.close();
                     } catch (SQLException ex) {
-                        Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                         return "Error occurred while deleting city " + city + ": " + ex.getMessage();
                     }
                     break;
@@ -430,7 +430,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                     return false;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
         }
@@ -463,7 +463,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 cityNames.addElement(rs.getString("City"));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (cityNames.getSize() == 0) {
                 cityNames.addElement("No Records Found");
@@ -486,7 +486,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                     als1.add(rs.getString("Name"));
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 if (als1.isEmpty()) {
                     als1.add("No Records Found");
@@ -530,7 +530,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 rs.close();
                 ps1.close();
             } catch (SQLException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             }
             String temp[] = PlaceRecord.toDegreeMinute(firstRecord.getDecimalLatitude());
             jTextField3.setText(temp[0].startsWith("-") ? fillZeroInText(temp[0].substring(1), 3) : fillZeroInText(temp[0], 3));
@@ -550,7 +550,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                     rs.close();
                     ps1.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
                 jTextField5.setText(firstRecord.getTimezone().getID().substring(3));
@@ -646,7 +646,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
-        dateChooser1 = new hour.DateChooser();
+        dateChooser1 = new com.sounaks.planethour.DateChooser();
         jButton4 = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -1496,7 +1496,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                     evt.consume();
                 }
             } catch (javax.swing.text.BadLocationException ex) {
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_lengthVerifier
@@ -1592,7 +1592,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 ps.close();
             } catch (SQLException ex) {
                 databaseError = true;
-                Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
@@ -1675,12 +1675,12 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         evt.consume();
         if(arrayPosChaldean!=-1) {
             String msg = getMultilineHTMLString(Planet.getProperty(Planet.chaldean[arrayPosChaldean]), getFontMetrics(getFont()), 450);
-            ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+Planet.chaldean[arrayPosChaldean].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+            ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+Planet.chaldean[arrayPosChaldean].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
             icon1.setImage(icon1.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_FAST));
             JOptionPane.showMessageDialog(this, msg, Planet.chaldean[arrayPosChaldean], JOptionPane.INFORMATION_MESSAGE, icon1);
         } else if (arrayPosHinduSp!=-1) {
             String msg = getMultilineHTMLString(Planet.getProperty(Planet.hinduSp[arrayPosHinduSp]), getFontMetrics(getFont()), 450);
-            ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+Planet.hinduSp[arrayPosHinduSp].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+            ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+Planet.hinduSp[arrayPosHinduSp].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
             icon1.setImage(icon1.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_FAST));
             JOptionPane.showMessageDialog(this, msg, Planet.hinduSp[arrayPosHinduSp].equalsIgnoreCase("yamag")?"Yamagandam":Planet.hinduSp[arrayPosHinduSp], JOptionPane.INFORMATION_MESSAGE, icon1);
         }
@@ -1721,12 +1721,12 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         evt.consume();
         if(arrayPosChaldean!=-1) {
             String msg = getMultilineHTMLString(Planet.getProperty(Planet.chaldean[arrayPosChaldean]), getFontMetrics(getFont()), 450);
-            ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+Planet.chaldean[arrayPosChaldean].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+            ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+Planet.chaldean[arrayPosChaldean].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
             icon1.setImage(icon1.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_FAST));
             JOptionPane.showMessageDialog(this, msg, Planet.chaldean[arrayPosChaldean], JOptionPane.INFORMATION_MESSAGE, icon1);
         } else if (arrayPosHinduSp!=-1) {
             String msg = getMultilineHTMLString(Planet.getProperty(Planet.hinduSp[arrayPosHinduSp]), getFontMetrics(getFont()), 450);
-            ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+Planet.hinduSp[arrayPosHinduSp].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+            ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+Planet.hinduSp[arrayPosHinduSp].toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
             icon1.setImage(icon1.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_FAST));
             JOptionPane.showMessageDialog(this, msg, Planet.hinduSp[arrayPosHinduSp].equalsIgnoreCase("yamag")?"Yamagandam":Planet.hinduSp[arrayPosHinduSp], JOptionPane.INFORMATION_MESSAGE, icon1);
         }
@@ -2102,13 +2102,13 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PlanetHour.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PlanetHour.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PlanetHour.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PlanetHour.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -2116,7 +2116,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MyFrame frame = new MyFrame();
+                PlanetHour frame = new PlanetHour();
                 frame.checkIfAlreadyRunning();
                 frame.setVisible(true);
                 frame.showHideTable();
@@ -2124,7 +2124,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private hour.DateChooser dateChooser1;
+    private com.sounaks.planethour.DateChooser dateChooser1;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
@@ -2222,9 +2222,9 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
                 updater.setTime(curTime);
                 cal.setTime(updater);
                 jLabel10.setText(nhl.getName()+" hour "+Planet.getNextPlanetTimeString(nhl, curTime, selectedCity.getTimezone(), false, ampmTime, false));
-                jLabel10.setIcon(new ImageIcon(getClass().getResource("/hour/"+nhl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
+                jLabel10.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+nhl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
                 jLabel13.setText(name1+(time1.startsWith("in")?" ":": ")+time1);
-                jLabel13.setIcon(new ImageIcon(getClass().getResource("/hour/"+spl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
+                jLabel13.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+spl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
             }
             
             if (running == false) break;
@@ -2264,24 +2264,24 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         if (debug) System.out.println("Place name is " + rec.place_name);
         java.util.TimeZone tz = rec.getTimezone();
         jLabel12.setText("Day of " + planets[0].getName()+" till "+Planet.getFormattedTime(planets[planets.length-1].getEndTime(), tz, ampmTime, false));
-        jLabel12.setIcon(new ImageIcon(getClass().getResource("/hour/"+planets[0].getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
+        jLabel12.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+planets[0].getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
         thl = getThisHourLord();
         nhl = getNextHourLord(thl);
         spl = getSpecialPlanetNearby(false);
         Planet spl2 = getSpecialPlanetNearby(true); // this for selected planets in jTable1
-        ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+thl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))); 
+        ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+thl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))); 
         icon1.setImage(icon1.getImage().getScaledInstance(32, 32, java.awt.Image.SCALE_FAST));
         jLabel11.setText(thl.getName()+" hour running");
         jLabel11.setIcon(icon1);
         jLabel10.setText(nhl.getName()+" hour "+Planet.getNextPlanetTimeString(nhl, curTime, tz, false, ampmTime, false));
-        jLabel10.setIcon(new ImageIcon(getClass().getResource("/hour/"+nhl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
+        jLabel10.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+nhl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
         String name1 = spl.getName();
         String time1 = Planet.getNextPlanetTimeString(spl, curTime, selectedCity.getTimezone(), false, ampmTime, ampmTime);
         if(name1.equalsIgnoreCase("rahu")) name1 = "Rahu kaalam";
         else if(name1.equalsIgnoreCase("gulika")) name1 = "Gulika kaalam";
         else if(name1.equalsIgnoreCase("yamag")) name1 = "Yamagandakam";
         jLabel13.setText(name1+(time1.startsWith("in")?" ":": ")+time1);
-        jLabel13.setIcon(new ImageIcon(getClass().getResource("/hour/"+spl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
+        jLabel13.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+spl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2.png":".png"))));
         if (debug) System.out.println("updateMainList(), thisLord: " + thl.getName());
         Point point;
         String hiphen = ampmTime?"-":" - ";
@@ -2449,18 +2449,18 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
         cellRenderer.setShowSymbol(symbolOn);
         jTable1.setDefaultRenderer(java.lang.String.class, cellRenderer);
         jTable1.repaint();
-        ImageIcon icon1 = new ImageIcon(getClass().getResource("/hour/"+planets[0].getName().toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+        ImageIcon icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+planets[0].getName().toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
         icon1.setImage(icon1.getImage().getScaledInstance(24, 24, java.awt.Image.SCALE_FAST));
         jLabel12.setIcon(icon1);
         jLabel12.repaint();
-        icon1 = new ImageIcon(getClass().getResource("/hour/"+thl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
+        icon1 = new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+thl.getName().toLowerCase()+(jCheckBox1.isSelected()?"2big.png":"big.png"))); 
         icon1.setImage(icon1.getImage().getScaledInstance(24, 24, java.awt.Image.SCALE_FAST));
         jLabel11.setText(thl.getName()+" hour running");
         jLabel11.setIcon(icon1);
         jLabel11.repaint();
-        jLabel10.setIcon(new ImageIcon(getClass().getResource("/hour/"+nhl.getName().toLowerCase()+(symbolOn?"2.png":".png"))));
+        jLabel10.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+nhl.getName().toLowerCase()+(symbolOn?"2.png":".png"))));
         jLabel10.repaint();
-        jLabel13.setIcon(new ImageIcon(getClass().getResource("/hour/"+spl.getName().toLowerCase()+(symbolOn?"2.png":".png"))));
+        jLabel13.setIcon(new ImageIcon(getClass().getResource("/com/sounaks/planethour/"+spl.getName().toLowerCase()+(symbolOn?"2.png":".png"))));
         jLabel13.repaint();
     }
     
@@ -2544,7 +2544,7 @@ public class MyFrame extends javax.swing.JFrame implements Runnable {
             ps.close();
             con.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MyFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             System.exit(0);
         }

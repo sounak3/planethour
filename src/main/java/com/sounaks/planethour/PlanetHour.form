@@ -707,7 +707,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="hour.DateChooser" name="dateChooser1">
+            <Component class="com.sounaks.planethour.DateChooser" name="dateChooser1">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="dateChooser1.setDate(selectedDate);"/>
               </AuxValues>
@@ -2367,7 +2367,7 @@
               </StatementProvider>
               <Parameters>
                 <CodeExpression id="117_dateChooser1">
-                  <CodeVariable name="dateChooser1" type="8194" declaredType="hour.DateChooser"/>
+                  <CodeVariable name="dateChooser1" type="8194" declaredType="com.sounaks.planethour.DateChooser"/>
                   <ExpressionOrigin>
                     <ExpressionProvider type="ComponentRef">
                       <ComponentRef name="dateChooser1"/>

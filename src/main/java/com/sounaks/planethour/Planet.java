@@ -1,5 +1,5 @@
 /*
- * File: Planet.java in java package hour is part of application
+ * File: Planet.java in java package com.sounaks.planethour is part of application
  * PlanetHour v1.0 - Planetary hour calculation software
  * Copyright (C) 2014 Sounak Choudhury
  * 
@@ -18,7 +18,7 @@
  * 
  * Contact E-mail: sounak_s@rediffmail.com
  */
-package hour;
+package com.sounaks.planethour;
 
 /**
  *
@@ -328,7 +328,7 @@ public class Planet
     {
         if (earthsun == null)
         {
-            earthsun = new ImageIcon(cls.getClass().getResource("/hour/earthsun.png")).getImage();
+            earthsun = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/earthsun.png")).getImage();
         }
         return earthsun;
     }
@@ -337,7 +337,7 @@ public class Planet
     {
         if (earthmoon == null)
         {
-            earthmoon = new ImageIcon(cls.getClass().getResource("/hour/earthmoon.png")).getImage();
+            earthmoon = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/earthmoon.png")).getImage();
         }
         return earthmoon;
     }
@@ -346,7 +346,7 @@ public class Planet
     {
         if (earth == null)
         {
-            earth = new ImageIcon(cls.getClass().getResource("/hour/earth.png")).getImage();
+            earth = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/earth.png")).getImage();
         }
         return earth;
     }
@@ -355,7 +355,7 @@ public class Planet
     {
         if (search == null)
         {
-            search = new ImageIcon(cls.getClass().getResource("/hour/search.png")).getImage();
+            search = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/search.png")).getImage();
         }
         return search;
     }
@@ -364,7 +364,7 @@ public class Planet
     {
         if (NA == null)
         {
-            NA = new ImageIcon(cls.getClass().getResource("/hour/na.png")).getImage();
+            NA = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/na.png")).getImage();
         }
         return NA;
     }
@@ -373,7 +373,7 @@ public class Planet
     {
         if (sun == null)
         {
-            sun = new ImageIcon(cls.getClass().getResource("/hour/sun.png")).getImage();
+            sun = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/sun.png")).getImage();
         }
         return sun;
     }
@@ -382,7 +382,7 @@ public class Planet
     {
         if (moon == null)
         {
-            moon = new ImageIcon(cls.getClass().getResource("/hour/moon.png")).getImage();
+            moon = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/moon.png")).getImage();
         }
         return moon;
     }
@@ -391,7 +391,7 @@ public class Planet
     {
         if (star == null)
         {
-            star = new ImageIcon(cls.getClass().getResource("/hour/star.png")).getImage();
+            star = new ImageIcon(cls.getClass().getResource("/com/sounaks/planethour/star.png")).getImage();
         }
         return star;
     }
@@ -419,7 +419,7 @@ public class Planet
         else
         {
             StringBuilder img = new StringBuilder(14);
-            img.append("/hour/");
+            img.append("/com/sounaks/planethour/");
             img.append(name.toLowerCase());
             if(isSymbol) img.append('2');
             //if(!selected) img.append("_1");
