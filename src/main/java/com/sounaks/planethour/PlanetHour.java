@@ -22,11 +22,12 @@ package com.sounaks.planethour;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.SystemTray;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -45,40 +46,18 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     private boolean debug=false;
     /**
      *
-     * Creates new form PlanetHour, initializes database, components, default values and starts updater thread
+     * Creates new form PlanetHour, loads places and settings, initializes components, default values and starts updater thread
      *
      */
     public PlanetHour() {
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            con = java.sql.DriverManager.getConnection("jdbc:derby:cities.db;create=true");
-            ps = con.prepareStatement("select * from APP.CITY where Country like 'Desktop' and City like 'Desktop'");
-            ResultSet rs = ps.executeQuery();
-            if(rs.next()) {
-                X = Integer.parseInt(rs.getString("Lat"));
-                Y = Integer.parseInt(rs.getString("Lon"));
-                blackbg = rs.getString("NoSo").equalsIgnoreCase("S");
-                symbolOn = rs.getString("EaWe").equalsIgnoreCase("W");
-                ampmTime = rs.getString("GMTDiff").startsWith("T");
-            }
-            rs.close();
-            ps.close();
-        } catch (ClassNotFoundException cnfe) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "The Specified Driver Does not Exist...", cnfe);
-        } catch (SQLException sqle) {
-            if (sqle.getErrorCode() == 0) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "No Suitable Driver Found...", sqle);
-            } else if (sqle.getErrorCode() == 1017) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Wrong UserName Or Password...", sqle);
-            } else if (sqle.getErrorCode() == 1034) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Database not Started...", sqle);
-            }
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, sqle.getErrorCode() + ", " + sqle.getSQLState(), sqle);
-        } catch (NumberFormatException nfe) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Error parsing window location from db...", nfe);
-        } finally {
-            selectedCity = getSelectedPlaceRecord();
-        }
+        placeStore = PlaceStore.load();
+        settings = Settings.load();
+        X = settings.x;
+        Y = settings.y;
+        blackbg = settings.blackBackground;
+        symbolOn = settings.symbols;
+        ampmTime = settings.twelveHourClock;
+        selectedCity = getSelectedPlaceRecord();
         cal = Calendar.getInstance(selectedCity.getTimezone());
         sysTime = curTime = System.currentTimeMillis();
         planets = new Planet[24];
@@ -100,10 +79,11 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         resizeColumns();
         threadStart();
         initTray();
+        saveLocationWhenMoved();
     }
     
-    java.sql.Connection con;
-    PreparedStatement ps;
+    private final PlaceStore placeStore;
+    private final Settings settings;
     int X=0, Y=0;
     boolean blackbg=false;
     boolean symbolOn=false;
@@ -235,52 +215,18 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
      * @return the value of selectedPlaceRecord as a PlaceRecord
      */
     public final PlaceRecord getSelectedPlaceRecord() {
-        int i = 0;
-        PlaceRecord firstRecord, selectedKey;
-        selectedKey = PlaceRecord.capital();
-        try {
-            // Get the 1st selected record
-            ps = con.prepareStatement("select * from APP.CITY where \"KEY\" = TRUE");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                if (i == 0) {
-                    selectedKey = new PlaceRecord(rs.getString("City"),
-                            rs.getString("Lat"), rs.getString("NoSo").equalsIgnoreCase("N") ? true : false,
-                            rs.getString("Lon"), rs.getString("EaWe").equalsIgnoreCase("E") ? true : false,
-                            rs.getString("GMTDiff"));
-                    selectedCountry = rs.getString("Country");
-                }
-                i++;
-            }
-            rs.close();
-            ps.close();
-            // Unselect other selected records
-            if (i > 1) {
-                ps = con.prepareStatement("update APP.City set \"KEY\" = false where Key like true");
-                ps.executeUpdate();
-                ps.close();
-                ps = con.prepareStatement("update APP.City set \"KEY\" = true where City like '" + selectedKey.place_name + "'");
-                ps.executeUpdate();
-                ps.close();
-            }
-            // Get the 1st record, in case no selected record exists
-            ps = con.prepareStatement("select * from APP.City");
-            rs = ps.executeQuery();
-            rs.next();
-            firstRecord = new PlaceRecord(rs.getString("City"),
-                    rs.getString("Lat"), rs.getString("NoSo").equalsIgnoreCase("N") ? true : false,
-                    rs.getString("Lon"), rs.getString("EaWe").equalsIgnoreCase("E") ? true : false,
-                    rs.getString("GMTDiff"));
-            if (i == 0) {
-                selectedKey = firstRecord;
-                selectedCountry = rs.getString("Country");
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
+        PlaceStore.Place place = placeStore.find(settings.country, settings.city);
+        if (place == null) {
+            place = placeStore.find(Settings.DEFAULT_COUNTRY, Settings.DEFAULT_CITY);
         }
-        return selectedKey;
+        if (place == null) {
+            place = placeStore.first();
+        }
+        if (place == null) {
+            return PlaceRecord.capital();
+        }
+        selectedCountry = place.country();
+        return place.toPlaceRecord();
     }
 
     /**
@@ -295,29 +241,16 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
      * @return error message if any error occurred during adding city OR blank string if successfully executed
      */
     public final String addCity(String country, String city, String lat, String lon, String noso, String eawe, String tz) {
-        boolean recordExists;
+        boolean recordExists = placeStore.find(country, city) != null;
         int usrInput;
-        try {
-            PreparedStatement ps1 = con.prepareStatement("select * from APP.City where Country like '" + jComboBox1.getSelectedItem().toString()
-                    + "' and City like '" + jComboBox2.getSelectedItem().toString() + "'");
-            ResultSet rs = ps1.executeQuery();
-            recordExists = rs.next();
-            rs.close();
-            ps.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-            return "Error occurred while adding city " + city + ": " + ex.getMessage();
-        }
         if (recordExists) {
             String alertMsg = "The specified City and Country combination already exists. Click Yes to replace, No to discard changes and Cancel to re-edit?";
             usrInput = JOptionPane.showConfirmDialog(this, alertMsg);
             switch (usrInput) {
                 case JOptionPane.YES_OPTION:
                     try {
-                        ps = con.prepareStatement("update APP.City set Lat='" + lat + "', Lon='" + lon + "', NoSo='" + noso + "', EaWe='" + eawe + "', GMTDiff='" + tz + "', \"KEY\"=false where Country like '" + country + "' and City like '" + city + "'");
-                        ps.executeUpdate();
-                        ps.close();
-                    } catch (SQLException ex) {
+                        placeStore.put(new PlaceStore.Place(country, city, lat, lon, noso, eawe, tz));
+                    } catch (IOException | IllegalArgumentException ex) {
                         Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                         return "Error occurred while adding city " + city + ": " + ex.getMessage();
                     }
@@ -338,10 +271,8 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
             }
         } else {
             try {
-                ps = con.prepareStatement("insert into City values ('" + city + "', '" + lat + "', '" + lon + "', '" + noso + "', '" + eawe + "', '" + country + "', '" + tz + "', " + false + ")");
-                ps.executeUpdate();
-                ps.close();
-            } catch (SQLException ex) {
+                placeStore.put(new PlaceStore.Place(country, city, lat, lon, noso, eawe, tz));
+            } catch (IOException | IllegalArgumentException ex) {
                 Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                 return "Error occurred while adding city " + city + ": " + ex.getMessage();
             }
@@ -356,29 +287,16 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
      * @return error message if any occurred during removing city OR blank string of executed successfully
      */
     public final String removeCity(String country, String city) {
-        boolean recordExists;
+        boolean recordExists = placeStore.find(country, city) != null;
         int usrInput;
-        try {
-            PreparedStatement ps1 = con.prepareStatement("select * from APP.City where Country like '" + jComboBox1.getSelectedItem().toString()
-                    + "' and City like '" + jComboBox2.getSelectedItem().toString() + "'");
-            ResultSet rs = ps1.executeQuery();
-            recordExists = rs.next();
-            rs.close();
-            ps.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-            return "Error occurred while deleting city " + city + ": " + ex.getMessage();
-        }
         if (recordExists) {
             String alertMsg = "This will permanently delete City " + city + " from database. Continue?";
             usrInput = JOptionPane.showConfirmDialog(this, alertMsg, "Confirm delete action", JOptionPane.YES_NO_OPTION);
             switch (usrInput) {
                 case JOptionPane.YES_OPTION:
                     try {
-                        ps = con.prepareStatement("delete from City where Country like '" + country + "' and City like '" + city + "'");
-                        ps.executeUpdate();
-                        ps.close();
-                    } catch (SQLException ex) {
+                        placeStore.remove(country, city);
+                    } catch (IOException ex) {
                         Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
                         return "Error occurred while deleting city " + city + ": " + ex.getMessage();
                     }
@@ -399,41 +317,17 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
      * @return true if operation completes successfully, else false
      */
     public boolean setSelectedPlaceRecord(String country, String city) {
-        boolean recordExists=false;
         if(country==null || city==null) throw new NullPointerException("Either country name or city name is null.");
-        else { // verify if the given city and country combination exists
-            try {
-                ps = con.prepareStatement("select * from APP.City where Country like '" + country
-                        + "' and City like '" + city + "'");
-                ResultSet rs = ps.executeQuery();
-                recordExists = rs.next();
-                if(recordExists) {
-                    selectedCity = new PlaceRecord(rs.getString("City"),
-                            rs.getString("Lat"), rs.getString("NoSo").equalsIgnoreCase("N") ? true : false,
-                            rs.getString("Lon"), rs.getString("EaWe").equalsIgnoreCase("E") ? true : false,
-                            rs.getString("GMTDiff"));
-                    selectedCountry = rs.getString("Country");
-                    rs.close();
-                    ps.close();
-
-                    ps = con.prepareStatement("update APP.City set \"KEY\" = false where \"KEY\" = true"); // unselect all records
-                    ps.executeUpdate();
-                    ps.close();
-                    
-                    ps = con.prepareStatement("update APP.City set \"KEY\" = true where Country like '" + country+ "' and City like '" + city + "'");
-                    ps.executeUpdate();
-                    ps.close();
-                    return true;
-                } else {
-                    rs.close();
-                    ps.close();
-                    return false;
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+        PlaceStore.Place place = placeStore.find(country, city);
+        if (place == null) {
+            return false;
         }
+        selectedCity = place.toPlaceRecord();
+        selectedCountry = place.country();
+        settings.country = country;
+        settings.city = city;
+        saveSettings();
+        return true;
     }
 
     /**
@@ -456,18 +350,11 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         } else {
             cityNames.removeAllElements();
         }
-        try {
-            ps = con.prepareStatement("select City from APP.City where Country = '" + country + "'");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                cityNames.addElement(rs.getString("City"));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (cityNames.getSize() == 0) {
-                cityNames.addElement("No Records Found");
-            }
+        for (String city : placeStore.cities(country)) {
+            cityNames.addElement(city);
+        }
+        if (cityNames.getSize() == 0) {
+            cityNames.addElement("No Records Found");
         }
         return cityNames;
     }
@@ -478,19 +365,9 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
      */
     Object[] getCountryNames() {
         if (countryNames == null) {
-            ArrayList<String> als1 = new ArrayList<String>();
-            try {
-                ps = con.prepareStatement("select Name from APP.Country");
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    als1.add(rs.getString("Name"));
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                if (als1.isEmpty()) {
-                    als1.add("No Records Found");
-                }
+            List<String> als1 = placeStore.countries();
+            if (als1.isEmpty()) {
+                als1.add("No Records Found");
             }
             countryNames = als1.toArray();
         }
@@ -516,21 +393,9 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         if (!formIsUpdating) {
             formIsUpdating = true;
             PlaceRecord firstRecord = new PlaceRecord();
-            PreparedStatement ps1;
-            ResultSet rs;
-            try {
-                ps1 = con.prepareStatement("select * from APP.City where Country like '" + countryName + "' and City like '" + cityName + "'");
-                rs = ps1.executeQuery();
-                if (rs.next()) {
-                    firstRecord = new PlaceRecord(rs.getString("City"),
-                            rs.getString("Lat"), rs.getString("NoSo").equalsIgnoreCase("N") ? true : false,
-                            rs.getString("Lon"), rs.getString("EaWe").equalsIgnoreCase("E") ? true : false,
-                            rs.getString("GMTDiff"));
-                }
-                rs.close();
-                ps1.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
+            PlaceStore.Place place = placeStore.find(countryName, cityName);
+            if (place != null) {
+                firstRecord = place.toPlaceRecord();
             }
             String temp[] = PlaceRecord.toDegreeMinute(firstRecord.getDecimalLatitude());
             jTextField3.setText(temp[0].startsWith("-") ? fillZeroInText(temp[0].substring(1), 3) : fillZeroInText(temp[0], 3));
@@ -541,16 +406,9 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
             jTextField2.setText(fillZeroInText(tmp[1], 2));
             jComboBox4.setSelectedIndex(tmp[0].startsWith("-") ? 1 : 0);
             if (firstRecord.toString().equals(new PlaceRecord().toString())) {
-                try {
-                    ps1 = con.prepareStatement("select GMTDIF from APP.Country where Name like '" + countryName + "'");
-                    rs = ps1.executeQuery();
-                    if (rs.next()) {
-                        jTextField5.setText(rs.getString("GMTDIF").replace('.', ':'));
-                    }
-                    rs.close();
-                    ps1.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
+                String countryOffset = placeStore.countryOffset(countryName);
+                if (countryOffset != null) {
+                    jTextField5.setText(countryOffset.replace('.', ':'));
                 }
             } else {
                 jTextField5.setText(firstRecord.getTimezone().getID().substring(3));
@@ -1557,7 +1415,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        boolean applyChanges=false, databaseError=false, dateError=false;
+        boolean applyChanges=false, dateError=false;
         String country=null, city=null;
         String alertMsg = verifyInputs();
         if (alertMsg == null) {
@@ -1566,43 +1424,32 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
             PlaceRecord rec = new PlaceRecord(jComboBox2.getSelectedItem().toString(), lat,
                     jComboBox3.getSelectedItem().toString().equalsIgnoreCase("N"), lon,
                     jComboBox4.getSelectedItem().toString().equalsIgnoreCase("E"), jTextField5.getText());
-            try {
-                PreparedStatement ps1 = con.prepareStatement("select * from APP.City where Country like '" + jComboBox1.getSelectedItem().toString()
-                        + "' and City like '" + jComboBox2.getSelectedItem().toString() + "'");
-                ResultSet rs = ps1.executeQuery();
-                if(rs.next()) {
-                    if(rs.getString("Lat").equals(jTextField3.getText() + jTextField4.getText())
-                            && rs.getString("Lon").equals(jTextField1.getText() + jTextField2.getText())
-                            && rs.getString("NoSo").equals(jComboBox3.getSelectedItem().toString())
-                            && rs.getString("EaWe").equals(jComboBox4.getSelectedItem().toString())
-                            && rs.getString("GMTDiff").equals(rec.getTimezone().getID().substring(3))) {
-                            try {
-                                selectedDate = dateChooser1.getDate();
-                                applyChanges = true;
-                                threadStop();
-                                
-                                country = jComboBox1.getSelectedItem().toString();
-                                city = jComboBox2.getSelectedItem().toString();
-                            } catch(NullPointerException ex) {
-                                dateError = true;
-                            }
-                    }
+            PlaceStore.Place place = placeStore.find(jComboBox1.getSelectedItem().toString(), jComboBox2.getSelectedItem().toString());
+            if(place != null) {
+                if(place.latitude().equals(jTextField3.getText() + jTextField4.getText())
+                        && place.longitude().equals(jTextField1.getText() + jTextField2.getText())
+                        && place.northSouth().equals(jComboBox3.getSelectedItem().toString())
+                        && place.eastWest().equals(jComboBox4.getSelectedItem().toString())
+                        && place.gmtOffset().equals(rec.getTimezone().getID().substring(3))) {
+                        try {
+                            selectedDate = dateChooser1.getDate();
+                            applyChanges = true;
+                            threadStop();
+                            
+                            country = jComboBox1.getSelectedItem().toString();
+                            city = jComboBox2.getSelectedItem().toString();
+                        } catch(NullPointerException ex) {
+                            dateError = true;
+                        }
                 }
-                rs.close();
-                ps.close();
-            } catch (SQLException ex) {
-                databaseError = true;
-                Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
-        if(databaseError) {
-            JOptionPane.showMessageDialog(this, "An error occurred while fetching database. Please restart the application.", "Error", JOptionPane.ERROR_MESSAGE);            
-        } else if(dateError) {
+        if(dateError) {
             JOptionPane.showMessageDialog(this, "The date entered is invalid. Please enter a valid date.", "Error", JOptionPane.ERROR_MESSAGE);
         } else if(applyChanges) {
             boolean succ = setSelectedPlaceRecord(country, city);
-            if(!succ) JOptionPane.showMessageDialog(this, "Either a database error has occurred or the selected city is not found in the database.", "Error", JOptionPane.ERROR_MESSAGE);
+            if(!succ) JOptionPane.showMessageDialog(this, "The selected city was not found.", "Error", JOptionPane.ERROR_MESSAGE);
             else {
                 cal.setTime(selectedDate);
                 curTime = selectedDate.getTime();
@@ -1621,6 +1468,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
         showHideSymbols(selectedCells);
+        saveSettings();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -1649,6 +1497,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         // TODO add your handling code here:
         blackbg = !blackbg;
         changeBackground(true);
+        saveSettings();
     }//GEN-LAST:event_jCheckBox2ActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
@@ -1692,6 +1541,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         updateMainForm(selectedCity);
         showHideSymbols(selectedCells);
         resizeColumns();
+        saveSettings();
     }//GEN-LAST:event_jCheckBox3ActionPerformed
 
     private void jTable1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyTyped
@@ -2537,16 +2387,39 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
             }
             oneSecThread = null;
         }
-        try {
-            // TODO add your handling code here:
-            ps = con.prepareStatement("update APP.City set Lat = '"+(getState()==NORMAL?getX():X)+"', Lon = '"+(getState()==NORMAL?getY():Y)+"', NoSo = '"+(blackbg?"S":"N")+"', EaWe = '"+(symbolOn?"W":"E")+"', GMTDiff = '"+(ampmTime?"T":"F")+"' where City like 'Desktop' and Country like 'Desktop'");
-            ps.executeUpdate();
-            ps.close();
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            System.exit(0);
+        saveSettings();
+        System.exit(0);
+    }
+
+    /**
+     * Saves the window position, display options and selected place to ~/.planethour/settings.properties.
+     */
+    private void saveSettings() {
+        if (getState() == NORMAL) {
+            X = getX();
+            Y = getY();
         }
+        settings.x = X;
+        settings.y = Y;
+        settings.blackBackground = blackbg;
+        settings.symbols = symbolOn;
+        settings.twelveHourClock = ampmTime;
+        try {
+            settings.save();
+        } catch (IOException ex) {
+            Logger.getLogger(PlanetHour.class.getName()).log(Level.SEVERE, "Cannot save settings", ex);
+        }
+    }
+
+    // Saves once the window has stopped moving, so the position survives a logoff or a killed process.
+    private void saveLocationWhenMoved() {
+        final javax.swing.Timer saveTimer = new javax.swing.Timer(1000, e -> saveSettings());
+        saveTimer.setRepeats(false);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                saveTimer.restart();
+            }
+        });
     }
 }
