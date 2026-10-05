@@ -1924,11 +1924,12 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         cal2 = null;
     }
     
-    private void checkIfAlreadyRunning() {
-        ProgramLock lock = new ProgramLock("PlanetHour");
+    // Runs before the frame loads any data, so a second instance never reads or writes the user's files.
+    private static void checkIfAlreadyRunning() {
+        ProgramLock lock = new ProgramLock();
         if (lock.isAppActive()) {
             System.out.println("Already active.");
-            JOptionPane.showMessageDialog(this, "PlanetHour is already running!", "PlanetHour - Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "PlanetHour is already running!", "PlanetHour - Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);    
         }
     }
@@ -1966,8 +1967,8 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                checkIfAlreadyRunning();
                 PlanetHour frame = new PlanetHour();
-                frame.checkIfAlreadyRunning();
                 frame.setVisible(true);
                 frame.showHideTable();
             }
