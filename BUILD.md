@@ -126,7 +126,7 @@ Pipeline and Pipeline: Declarative, Git, JUnit, Workspace Cleanup (`cleanWs`), F
 
 Both jobs read their pipeline from the repository:
 
-*Configure → Pipeline → Definition: **Pipeline script from SCM*** → SCM: Git → Repository URL `https://github.com/sounak3/planetHour.git`, Credentials: *none* (public repository) → Branch `*/main` → Script Path `Jenkinsfile` (release) or `Jenkinsfile.dev` (dev) → *Lightweight checkout* ✓.
+*Configure → Pipeline → Definition: **Pipeline script from SCM*** → SCM: Git → Repository URL `https://github.com/sounak3/planethour.git`, Credentials: *none* (public repository) → Branch `*/main` → Script Path `Jenkinsfile` (release) or `Jenkinsfile.dev` (dev) → *Lightweight checkout* ✓.
 
 `planethour dev` keeps 30 builds, never runs two at once and has a 15-second quiet period; these come from its `options { }` block.
 

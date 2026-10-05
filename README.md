@@ -6,7 +6,7 @@ It comes with about 10,900 cities in 185 countries. You can add your own places 
 
 ## Install
 
-Download the installer for your system from the [Releases](https://github.com/sounak3/planetHour/releases) page:
+Download the installer for your system from the [Releases](https://github.com/sounak3/planethour/releases) page:
 
 | System | File |
 |---|---|
