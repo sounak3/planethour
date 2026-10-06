@@ -12,6 +12,11 @@ derby.log
 # Local IDE, Claude Code and tooling state
 /nbproject/private/
 /.vscode/
+# Written by VS Code's Java extension (Eclipse JDT) when it imports the Maven project
+/.project
+/.classpath
+/.settings/
+/.factorypath
 /.claude/
 /.github/modernize/
 Thumbs.db

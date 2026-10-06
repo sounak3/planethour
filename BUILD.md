@@ -155,4 +155,5 @@ A single Maven build writes the jar more than once (the shade plugin replaces it
 5. **The DEB's maintainer field reads `Sounak Choudhury <Unknown>`.** Add `--linux-deb-maintainer <email>` to the Ubuntu stage if you want a contact address in the package.
 6. **The icon source is 256×256.** The 512 and 1024 px macOS sizes are upscaled and slightly soft. Replace `art/PlanetHour-icon.png` with larger art and regenerate when available.
 7. **Test machines need Java 21**, and **Windows 7 is unsupported by Java 21.** See desktime's BUILD.md.
-8. **What you test isn't exactly what you ship.** `planethour dev` tests your IDE build, which may include uncommitted changes; the release rebuilds from `main`. The build descriptions record the commit.
+8. **A dev build started while a release is packaging can end ABORTED.** Each agent has one executor, and each deploy stage's 5-minute timeout includes waiting for it (that is what lets a powered-off VM fail only its own copy). If the release holds `mac` or `win` for longer, the dev build times out before its unit tests. Rerun it when the release has finished.
+9. **What you test isn't exactly what you ship.** `planethour dev` tests your IDE build, which may include uncommitted changes; the release rebuilds from `main`. The build descriptions record the commit.
