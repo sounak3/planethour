@@ -16,13 +16,24 @@ Typical workflow:
 1. Build in the IDE (`mvn package`). This writes `target/planethour.jar`.
 2. `planethour dev` runs automatically. It drops `planethour_latest.jar` on the Desktop of all three machines, prints its SHA-256 on each, and runs the unit tests on a snapshot of your working copy.
 3. Test the jar on Linux, macOS and Windows (`java -jar ~/Desktop/planethour_latest.jar`).
-4. To release a new version, set `<version>` in `pom.xml` (see *Version*). Commit and push to `main`.
-5. Run `planethour` (release). Download the installers from the build page and upload them to GitHub Releases.
+4. To release a new version, set `<version>` in `pom.xml` (see *Version*), commit, and merge to `main` through a pull request (`main` accepts no direct pushes).
+5. Make sure `planethour dev` has passed on those exact files (see *Release gate*). Usually it already has: the merge of a tested branch has the same files.
+6. Run `planethour` (release). Download the installers from the build page and upload them to GitHub Releases.
 
 Each build's description shows what it was built from:
 
-- **Release:** `v2.0 @ 1a2b3c4d`, meaning the version and the commit it was built from.
+- **Release:** `v2.0 @ 1a2b3c4d, dev #3`, meaning the version, the commit it was built from, and the dev build that passed on the same files.
 - **Dev:** `1a2b3c4`, or `1a2b3c4 + uncommitted changes` if the IDE build included work that wasn't committed yet.
+
+### Release gate
+
+The release only packages files that have passed `planethour dev`:
+
+- A dev build that ends **SUCCESS** on a working copy **without uncommitted changes** records a pass in `~/jenkins/dev-verified/planethour/` on lin. The file is named after the git *tree* hash of the commit (which identifies its exact files) and holds the dev build number and commit. Builds that are UNSTABLE (failing tests), ABORTED or FAILED, or that included uncommitted changes, record nothing; neither does a build during which the working copy changed.
+- Right after checkout, the release looks up the tree of the commit it is about to build. Without a recorded pass it stops before building anything, with the description `<commit>: blocked, not dev-tested`.
+- Because the match is by files, not commit ID, a merge commit passes when its files are identical to a dev-tested branch head. If `main` moved in the meantime, the merged files differ: check out `main`, build it in the IDE, wait for `planethour dev`, then release.
+
+There is no override. The pass records live outside `JENKINS_HOME`, so the nightly Jenkins backup doesn't include them; if they are lost, rerun `planethour dev` on the commit to release. Deleting the folder revokes every pass.
 
 ### Version
 
@@ -35,6 +46,7 @@ PlanetHour uses **incremental major versions**: each release raises the major nu
 ```
 Build jar (lin)                         Package (parallel)
   checkout scm                     ┌──> Windows (win): jlink → jpackage --type msi (WiX 3.14)
+  release gate (dev pass?)         │
   version from pom.xml             │
   mvn clean verify (tests) ─stash─>├──> Ubuntu  (lin): jlink → jpackage --type deb
   app/ + extras/ icons             └──> Mac OS  (mac): jlink → jpackage --type dmg
@@ -156,4 +168,4 @@ A single Maven build writes the jar more than once (the shade plugin replaces it
 6. **The icon source is 256×256.** The 512 and 1024 px macOS sizes are upscaled and slightly soft. Replace `art/PlanetHour-icon.png` with larger art and regenerate when available.
 7. **Test machines need Java 21**, and **Windows 7 is unsupported by Java 21.** See desktime's BUILD.md.
 8. **A dev build started while a release is packaging can end ABORTED.** Each agent has one executor, and each deploy stage's 5-minute timeout includes waiting for it (that is what lets a powered-off VM fail only its own copy). If the release holds `mac` or `win` for longer, the dev build times out before its unit tests. Rerun it when the release has finished.
-9. **What you test isn't exactly what you ship.** `planethour dev` tests your IDE build, which may include uncommitted changes; the release rebuilds from `main`. The build descriptions record the commit.
+9. **The shipped jar is rebuilt, not the tested one.** The release gate guarantees the release's files passed `planethour dev`, but the release compiles them again on lin rather than reusing the jar that was on the test machines. Same sources and JDK give the same behaviour, but not a byte-identical jar.
