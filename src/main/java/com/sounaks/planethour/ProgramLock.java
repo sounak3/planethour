@@ -1,5 +1,5 @@
 /*
- * File: ProgramLock.java in java package hour is part of application
+ * File: ProgramLock.java in java package com.sounaks.planethour is part of application
  * PlanetHour v1.0 - Planetary hour calculation software
  * Copyright (C) 2014 Sounak Choudhury
  * 
@@ -18,7 +18,7 @@
  * 
  * Contact E-mail: sounak_s@rediffmail.com
  */
-package hour;
+package com.sounaks.planethour;
 
 /**
  *
@@ -26,20 +26,25 @@ package hour;
  */
 import java.io.*;
 import java.nio.channels.*;
+import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProgramLock {
-    private String appName;
+    static final String FILE_NAME = "planethour.lock";
     private File file;
     private FileChannel channel;
     private FileLock lock;
 
-    public ProgramLock(String appName) {
-        this.appName = appName;
-    }
-
+    /**
+     * Checks whether another PlanetHour runs for this user, and if not, holds the lock in
+     * ~/.planethour/ until this program exits.
+     * @return true if another instance holds the lock
+     */
     public boolean isAppActive() {
         try {
-            file = new File(System.getProperty("user.home"), appName + ".tmp");
+            Files.createDirectories(UserFiles.dir());
+            file = UserFiles.file(FILE_NAME).toFile();
             channel = new RandomAccessFile(file, "rw").getChannel();
 
             try {
@@ -59,32 +64,26 @@ public class ProgramLock {
             }
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
-                    // destroy the lock when the JVM is closing
+                    // release the lock when the JVM is closing; the file stays, so no other instance can lock a deleted file
                     @Override
                     public void run() {
                         closeLock();
-//                        System.out.println("Closing lock! Program shutdown.");
-                        deleteFile();
                     }
                 });
             return false;
         }
         catch (Exception e) {
+            // Without a usable lock file, starting is better than refusing to run.
             closeLock();
-//            System.out.println("Closing lock! Cannot open file.");
-            return true;
+            Logger.getLogger(ProgramLock.class.getName()).log(Level.WARNING, "Cannot check for another running PlanetHour", e);
+            return false;
         }
     }
 
-    private void closeLock() {
+    void closeLock() {
         try { lock.release();  }
         catch (Exception e) {  }
         try { channel.close(); }
         catch (Exception e) {  }
-    }
-
-    private void deleteFile() {
-        try { file.delete(); }
-        catch (Exception e) { }
     }
 }

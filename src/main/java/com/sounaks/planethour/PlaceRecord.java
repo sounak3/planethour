@@ -1,5 +1,5 @@
 /*
- * File: PlaceRecord.java in java package hour is part of application
+ * File: PlaceRecord.java in java package com.sounaks.planethour is part of application
  * PlanetHour v1.0 - Planetary hour calculation software
  * Copyright (C) 2014 Sounak Choudhury
  * 
@@ -18,7 +18,7 @@
  * 
  * Contact E-mail: sounak_s@rediffmail.com
  */
-package hour;
+package com.sounaks.planethour;
 
 
 import java.util.Calendar;

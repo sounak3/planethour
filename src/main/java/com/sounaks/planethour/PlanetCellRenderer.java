@@ -1,5 +1,5 @@
 /*
- * File: PlanetCellRenderer.java in java package hour is part of application
+ * File: PlanetCellRenderer.java in java package com.sounaks.planethour is part of application
  * PlanetHour v1.0 - Planetary hour calculation software
  * Copyright (C) 2014 Sounak Choudhury
  * 
@@ -18,7 +18,7 @@
  * 
  * Contact E-mail: sounak_s@rediffmail.com
  */
-package hour;
+package com.sounaks.planethour;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -59,7 +59,7 @@ public class PlanetCellRenderer extends javax.swing.table.DefaultTableCellRender
         if(val.equalsIgnoreCase("yamag")) val = "Yamagandam";
         setText(val);
         if(column==0 || column==2) { // then set image icons for planets, else horizontal align=CENTER
-            setIcon(new javax.swing.ImageIcon(getClass().getResource("/hour/"+value.toString().toLowerCase()+(showSymbol?"2.png":".png"))));
+            setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/sounaks/planethour/"+value.toString().toLowerCase()+(showSymbol?"2.png":".png"))));
             setHorizontalAlignment(SwingConstants.LEADING);
         } else {
             setIcon(null);
