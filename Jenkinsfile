@@ -10,11 +10,20 @@ pipeline {
                 cleanWs()
                 script {
                     def scmVars = checkout scm
+                    // Only package files that passed 'planethour dev': its passes are recorded on lin by git tree,
+                    // so a merge commit with the same files as a tested branch head also qualifies.
+                    env.RELEASE_TREE = sh(returnStdout: true, script: 'git rev-parse "HEAD^{tree}"').trim()
+                    def devBuild = sh(returnStdout: true, script: 'head -n 1 "$HOME/jenkins/dev-verified/planethour/$RELEASE_TREE" 2>/dev/null || true').trim()
+                    if (!devBuild) {
+                        currentBuild.description = "${scmVars.GIT_COMMIT.substring(0, 8)}: blocked, not dev-tested"
+                        error("Commit ${scmVars.GIT_COMMIT.substring(0, 8)} has not passed 'planethour dev'. Check it out in the working copy with no uncommitted changes, build it in the IDE, wait for 'planethour dev' to succeed, then run this release again.")
+                    }
+                    echo sh(returnStdout: true, script: 'tail -n 1 "$HOME/jenkins/dev-verified/planethour/$RELEASE_TREE"').trim()
                     env.APP_VERSION = sh(returnStdout: true, script: 'mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout').trim().replace('-SNAPSHOT', '')
                     if (!(env.APP_VERSION ==~ /\d+(\.\d+){0,2}/)) {
                         error("pom.xml version '${env.APP_VERSION}' is not a valid installer version; use e.g. 1.2 or 1.2.3")
                     }
-                    currentBuild.description = "v${env.APP_VERSION} @ ${scmVars.GIT_COMMIT.substring(0, 8)}"
+                    currentBuild.description = "v${env.APP_VERSION} @ ${scmVars.GIT_COMMIT.substring(0, 8)}, dev #${devBuild}"
                 }
                 sh 'mvn -B -ntp clean verify'
                 sh '''

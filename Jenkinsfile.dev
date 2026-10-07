@@ -1,5 +1,8 @@
 // Fallback for a job's first run, before Jenkins has registered the parameters below.
 def defaultJarPath = '/home/sounak/Documents/NetBeansProjects/PlanetHour/target/planethour.jar'
+// A passed build of a clean working copy leaves a file here, named after the git tree it tested.
+// The release pipeline only packages a commit whose tree has such a file. Both run on lin.
+def devVerifiedDir = '$HOME/jenkins/dev-verified/planethour'
 
 pipeline {
     agent none
@@ -30,6 +33,9 @@ pipeline {
                     def commit = sh(returnStdout: true, script: 'git -C "$(dirname "$(dirname "$JAR")")" rev-parse --short HEAD').trim()
                     def changes = sh(returnStdout: true, script: 'git -C "$(dirname "$(dirname "$JAR")")" status --porcelain').trim()
                     currentBuild.description = changes ? "${commit} + uncommitted changes" : commit
+                    env.DEV_COMMIT = sh(returnStdout: true, script: 'git -C "$(dirname "$(dirname "$JAR")")" rev-parse HEAD').trim()
+                    env.DEV_TREE = sh(returnStdout: true, script: 'git -C "$(dirname "$(dirname "$JAR")")" rev-parse "HEAD^{tree}"').trim()
+                    env.DEV_CLEAN = changes ? 'false' : 'true'
                 }
                 archiveArtifacts artifacts: 'planethour_latest.jar', fingerprint: true
                 stash name: 'jar', includes: 'planethour_latest.jar'
@@ -75,6 +81,30 @@ pipeline {
                     cd src && mvn -B -ntp -Dmaven.test.failure.ignore=true test
                 '''
                 junit allowEmptyResults: true, testResults: 'src/target/surefire-reports/*.xml'
+            }
+        }
+        stage('Record pass for release') {
+            agent { label 'lin' }
+            steps {
+                script {
+                    if (currentBuild.currentResult != 'SUCCESS') {
+                        echo "Build is ${currentBuild.currentResult}: no pass recorded, so the release won't package this tree"
+                    } else if (env.DEV_CLEAN != 'true') {
+                        echo 'The jar was built with uncommitted changes: no pass recorded, so the release will not package this tree'
+                    } else {
+                        // Checked again in case the working copy changed while the build ran.
+                        sh """
+                            REPO="\$(dirname "\$(dirname "\$JAR")")"
+                            if [ -n "\$(git -C "\$REPO" status --porcelain)" ] || [ "\$(git -C "\$REPO" rev-parse 'HEAD^{tree}')" != "\$DEV_TREE" ]; then
+                                echo 'The working copy changed during this build: no pass recorded'
+                                exit 0
+                            fi
+                            mkdir -p "${devVerifiedDir}"
+                            printf '%s\\n%s\\n' "\$BUILD_NUMBER" "planethour dev #\$BUILD_NUMBER passed on commit \$DEV_COMMIT at \$(date -Is)" > "${devVerifiedDir}/\$DEV_TREE"
+                            echo "Recorded pass for tree \$DEV_TREE (commit \$DEV_COMMIT)"
+                        """
+                    }
+                }
             }
         }
     }
