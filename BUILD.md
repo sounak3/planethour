@@ -39,7 +39,7 @@ There is no override. The pass records live outside `JENKINS_HOME`, so the night
 
 `pom.xml` is the only place the version is set. The release pipeline reads `project.version`, removes `-SNAPSHOT`, and uses the result as the installer version. The MSI format accepts only numeric versions (`2.0`, `2.0.1`), and the pipeline stops with an error otherwise.
 
-PlanetHour uses **incremental major versions**: each release raises the major number (`2.0-SNAPSHOT` → installers `2.0`, then `3.0-SNAPSHOT` → `3.0`, and so on). Version 2.0 is the first release built by these pipelines; earlier versions were NetBeans/Ant builds.
+Each release raises the version before the next round of work: a release with fixes and small changes raises the minor number (`2.0` → `2.1-SNAPSHOT` → installers `2.1`), and a larger change raises the major number (`3.0-SNAPSHOT` → `3.0`). Version 2.0 is the first release built by these pipelines; earlier versions were NetBeans/Ant builds. The README's download links name the latest published installers, so update them after each release is uploaded, not when the pom changes.
 
 ### Release pipeline flow
 
