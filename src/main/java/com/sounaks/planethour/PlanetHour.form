@@ -2823,7 +2823,7 @@
                       <Font name="Tahoma" size="11" style="1"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Contact E-mail: &lt;a href=&apos;mailto:sounak_s@rediffmail.com&apos;&gt;sounak_s@rediffmail.com&lt;/a&gt;&lt;/html&gt;"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Contact E-mail: &lt;a href=&apos;mailto:admin@sounaks.com&apos;&gt;admin@sounaks.com&lt;/a&gt;&lt;/html&gt;"/>
                   </Properties>
                 </Component>
               </SubComponents>

@@ -94,7 +94,7 @@ pipeline {
                         }
                         stage('Pack Debian Package') {
                             steps {
-                                sh 'jpackage --input app --name PlanetHour --description "Planetary hour calculator" --vendor "Sounak Choudhury" --copyright "Copyright (C) 2013-2026 Sounak Choudhury" --app-version "$APP_VERSION" --main-jar planethour.jar --runtime-image jre --type deb --license-file app/LICENSE.txt --icon extras/PlanetHour.png --linux-app-category Utility --linux-app-release release --linux-menu-group Utility --linux-shortcut'
+                                sh 'jpackage --input app --name PlanetHour --description "Planetary hour calculator" --vendor "Sounak Choudhury" --copyright "Copyright (C) 2013-2026 Sounak Choudhury" --app-version "$APP_VERSION" --main-jar planethour.jar --runtime-image jre --type deb --license-file app/LICENSE.txt --icon extras/PlanetHour.png --linux-app-category Utility --linux-app-release release --linux-menu-group Utility --linux-shortcut --linux-deb-maintainer admin@sounaks.com'
                             }
                         }
                         stage('Export DEB') {

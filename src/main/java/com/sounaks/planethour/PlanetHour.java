@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Contact E-mail: sounak_s@rediffmail.com
+ * Contact E-mail: admin@sounaks.com
  */
 package com.sounaks.planethour;
 import java.awt.Color;
@@ -1226,7 +1226,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel14.setText("<html>Contact E-mail: <a href='mailto:sounak_s@rediffmail.com'>sounak_s@rediffmail.com</a></html>");
+        jLabel14.setText("<html>Contact E-mail: <a href='mailto:admin@sounaks.com'>admin@sounaks.com</a></html>");
         jPanel9.add(jLabel14);
 
         jPanel8.add(jPanel9, java.awt.BorderLayout.CENTER);
