@@ -1,7 +1,7 @@
 /*
  * File: PlanetHour.java in java package com.sounaks.planethour is part of application
- * PlanetHour v1.0 - Planetary hour calculation software
- * Copyright (C) 2014 Sounak Choudhury
+ * PlanetHour - Planetary hour calculation software
+ * Copyright (C) 2014 - 2026 Sounak Choudhury
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Contact E-mail: sounak_s@rediffmail.com
+ * Contact E-mail: admin@sounaks.com
  */
 package com.sounaks.planethour;
 import java.awt.Color;
@@ -80,6 +80,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         threadStart();
         initTray();
         saveLocationWhenMoved();
+        keepCompactHeightWhenDecorated();
     }
     
     private final PlaceStore placeStore;
@@ -120,6 +121,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     private Color tableBackground;
     private java.util.ArrayList<Point> selectedCells;
     private java.awt.Rectangle currBounds;
+    private int compactContentHeight, compactInsetTop;
     private Point currCell;
     private SystemTray tray;
     private java.awt.TrayIcon trayIcon;
@@ -1213,7 +1215,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel8.setText("<html>PlanetHour v1.0 - Planetary hour calculation software<br>Copyright (C) 2014 Sounak Choudhury</html>");
+        jLabel8.setText(AppInfo.aboutText());
         jPanel9.add(jLabel8);
         jPanel9.add(filler5);
 
@@ -1226,7 +1228,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel14.setText("<html>Contact E-mail: <a href='mailto:sounak_s@rediffmail.com'>sounak_s@rediffmail.com</a></html>");
+        jLabel14.setText("<html>Contact E-mail: <a href='mailto:admin@sounaks.com'>admin@sounaks.com</a></html>");
         jPanel9.add(jLabel14);
 
         jPanel8.add(jPanel9, java.awt.BorderLayout.CENTER);
@@ -1238,7 +1240,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
         if (formUpdateSource.equalsIgnoreCase("none")) {
             formUpdateSource = evt.getActionCommand();
         }
@@ -1264,7 +1265,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         //shutdown();
     }//GEN-LAST:event_formWindowClosing
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
         if (formUpdateSource.equalsIgnoreCase("none")) {
             formUpdateSource = evt.getActionCommand();
         }
@@ -1276,7 +1276,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jButton3ActionPerformed
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-        // TODO add your handling code here:
         if (formUpdateSource.equalsIgnoreCase("none")) {
             formUpdateSource = evt.getActionCommand();
         }
@@ -1285,7 +1284,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jComboBox2ActionPerformed
     private void jTabbedPane1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPane1StateChanged
-        // TODO add your handling code here:
         if(running) showHideTable();
         if (formUpdateSource.equalsIgnoreCase("none") && jTabbedPane1.getSelectedIndex() == 1) {
             formUpdateSource = "tabPane1";
@@ -1302,7 +1300,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jTabbedPane1StateChanged
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
         String alertMsg = verifyInputs();
         if (alertMsg != null) {
             JOptionPane.showMessageDialog(this, alertMsg, "Error", JOptionPane.ERROR_MESSAGE);
@@ -1333,7 +1330,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
     private void lengthVerifier(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lengthVerifier
-        // TODO add your handling code here:
         String name = evt.getComponent().getName();
         if(evt.getComponent() instanceof javax.swing.JTextField) {
             javax.swing.JTextField srcField = (javax.swing.JTextField) evt.getSource();
@@ -1359,7 +1355,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_lengthVerifier
     private void fillZeroOnFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_fillZeroOnFocusLost
-        // TODO add your handling code here:
         String name = evt.getComponent().getName();
         javax.swing.JTextField src = (javax.swing.JTextField) evt.getSource();
         int i = src.getText().length();
@@ -1376,7 +1371,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_fillZeroOnFocusLost
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
         String alertMsg = verifyInputs();
         if (alertMsg != null) {
             JOptionPane.showMessageDialog(this, alertMsg, "Error", JOptionPane.ERROR_MESSAGE);
@@ -1402,19 +1396,16 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
     private void selectTextOnFocus(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_selectTextOnFocus
-        // TODO add your handling code here:
         java.awt.Component comp = evt.getComponent();
         if (comp instanceof javax.swing.JTextField) {
             ((javax.swing.JTextField) comp).selectAll();
         }
     }//GEN-LAST:event_selectTextOnFocus
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
         dateChooser1.setDate(new Date());
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
         boolean applyChanges=false, dateError=false;
         String country=null, city=null;
         String alertMsg = verifyInputs();
@@ -1466,42 +1457,35 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
         showHideSymbols(selectedCells);
         saveSettings();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
         jTabbedPane1.setSelectedIndex(0);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void mouseOverLabel(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouseOverLabel
-        // TODO add your handling code here:
         java.awt.Component labelComponent = evt.getComponent();
         labelComponent.setForeground(Color.blue);
     }//GEN-LAST:event_mouseOverLabel
 
     private void mouseOverExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouseOverExited
-        // TODO add your handling code here:
         java.awt.Component labelComponent = evt.getComponent();
         labelComponent.setForeground(getPanelForeground());
     }//GEN-LAST:event_mouseOverExited
 
     private void showTable(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showTable
-        // TODO add your handling code here:
         showHideTable();
     }//GEN-LAST:event_showTable
 
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
-        // TODO add your handling code here:
         blackbg = !blackbg;
         changeBackground(true);
         saveSettings();
     }//GEN-LAST:event_jCheckBox2ActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        // TODO add your handling code here:
         Point p = evt.getPoint();
         selectedRow = jTable1.rowAtPoint(p);
         selectedColumn = jTable1.columnAtPoint(p);
@@ -1536,7 +1520,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jCheckBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox3ActionPerformed
-        // TODO add your handling code here:
         ampmTime = !ampmTime;
         updateMainForm(selectedCity);
         showHideSymbols(selectedCells);
@@ -1545,7 +1528,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jCheckBox3ActionPerformed
 
     private void jTable1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyTyped
-        // TODO add your handling code here:
         if(evt.getKeyChar()!= java.awt.event.KeyEvent.VK_ENTER) {
             evt.consume();
             return;
@@ -1583,7 +1565,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jTable1KeyTyped
 
     private void formWindowStateChanged(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowStateChanged
-        // TODO add your handling code here:
         if(tray==null) return;
         if(evt.getNewState()==ICONIFIED) {
             try {
@@ -1620,17 +1601,14 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         //maximize
     }
     private void menuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem1ActionPerformed
-        // TODO add your handling code here:
         restoreWindow();
     }//GEN-LAST:event_menuItem1ActionPerformed
 
     private void menuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem2ActionPerformed
-        // TODO add your handling code here:
         shutdown();
     }//GEN-LAST:event_menuItem2ActionPerformed
 
     private void jTable1MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseMoved
-        // TODO add your handling code here:
         Point p = evt.getPoint();
         int row = jTable1.rowAtPoint(p);
         int col = jTable1.columnAtPoint(p);
@@ -1644,7 +1622,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jTable1MouseMoved
 
     private void jTable1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTable1FocusGained
-        // TODO add your handling code here:
         if(!showTable) showHideTable();
         selectionIsChanging = true;
         if(jTable1.hasFocus() && selectedColumn==-1) {
@@ -1663,7 +1640,6 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jTable1FocusGained
 
     private void jTable1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTable1FocusLost
-        // TODO add your handling code here:
         selectedColumn = jTable1.getSelectedColumn();
         selectedRow = jTable1.getSelectedRow();
         if (selectedColumn > -1 && selectedRow > -1) {
@@ -1674,12 +1650,10 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jTable1FocusLost
 
     private void jCheckBox2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jCheckBox2FocusGained
-        // TODO add your handling code here:
         if(!showTable) showHideTable();
     }//GEN-LAST:event_jCheckBox2FocusGained
 
     private void jTable1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseExited
-        // TODO add your handling code here:
         currCell=new Point(-1, -1);
         cellRenderer.setMouseOverCell(currCell);
         jTable1.repaint();
@@ -1716,11 +1690,37 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         showTable = !showTable;
         if(!showTable) {
             currBounds = getBounds();
-            if(jScrollPane1.isShowing()) setBounds(getX(), getY(), getWidth(), jScrollPane1.getLocationOnScreen().y-getY()+6);
+            if(jScrollPane1.isShowing()) {
+                compactContentHeight = SwingUtilities.convertPoint(jScrollPane1, 0, 0, getRootPane()).y+6;
+                setCompactHeight();
+            }
         } else {
             currBounds.setLocation(getX(), getY());
             setBounds(currBounds);
         }
+    }
+
+    /**
+     * Sizes the collapsed window to the title bar plus the content above the
+     * planetary hour table
+     */
+    private void setCompactHeight() {
+        compactInsetTop = getInsets().top;
+        setBounds(getX(), getY(), getWidth(), compactInsetTop+compactContentHeight);
+    }
+
+    /**
+     * The window is collapsed at startup, before a Linux window manager has added
+     * its title bar, which then takes its height from the content. Resizes the
+     * collapsed window again whenever the title bar height changes.
+     */
+    private void keepCompactHeightWhenDecorated() {
+        getRootPane().addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if(!showTable && compactContentHeight > 0 && getInsets().top != compactInsetTop) setCompactHeight();
+            }
+        });
     }
     
     /**

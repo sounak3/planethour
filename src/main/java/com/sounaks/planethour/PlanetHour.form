@@ -2768,7 +2768,9 @@
                       <Font name="Tahoma" size="11" style="1"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;PlanetHour v1.0 - Planetary hour calculation software&lt;br&gt;Copyright (C) 2014 Sounak Choudhury&lt;/html&gt;"/>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="AppInfo.aboutText()" type="code"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.Box$Filler" name="filler5">
@@ -2821,7 +2823,7 @@
                       <Font name="Tahoma" size="11" style="1"/>
                     </Property>
                     <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Contact E-mail: &lt;a href=&apos;mailto:sounak_s@rediffmail.com&apos;&gt;sounak_s@rediffmail.com&lt;/a&gt;&lt;/html&gt;"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Contact E-mail: &lt;a href=&apos;mailto:admin@sounaks.com&apos;&gt;admin@sounaks.com&lt;/a&gt;&lt;/html&gt;"/>
                   </Properties>
                 </Component>
               </SubComponents>

@@ -1,7 +1,7 @@
 /*
  * File: ProgramLock.java in java package com.sounaks.planethour is part of application
- * PlanetHour v1.0 - Planetary hour calculation software
- * Copyright (C) 2014 Sounak Choudhury
+ * PlanetHour - Planetary hour calculation software
+ * Copyright (C) 2014 - 2026 Sounak Choudhury
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Contact E-mail: sounak_s@rediffmail.com
+ * Contact E-mail: admin@sounaks.com
  */
 package com.sounaks.planethour;
 

@@ -39,7 +39,7 @@ There is no override. The pass records live outside `JENKINS_HOME`, so the night
 
 `pom.xml` is the only place the version is set. The release pipeline reads `project.version`, removes `-SNAPSHOT`, and uses the result as the installer version. The MSI format accepts only numeric versions (`2.0`, `2.0.1`), and the pipeline stops with an error otherwise.
 
-PlanetHour uses **incremental major versions**: each release raises the major number (`2.0-SNAPSHOT` → installers `2.0`, then `3.0-SNAPSHOT` → `3.0`, and so on). Version 2.0 is the first release built by these pipelines; earlier versions were NetBeans/Ant builds.
+Each release raises the version before the next round of work: a release with fixes and small changes raises the minor number (`2.0` → `2.1-SNAPSHOT` → installers `2.1`), and a larger change raises the major number (`3.0-SNAPSHOT` → `3.0`). Version 2.0 is the first release built by these pipelines; earlier versions were NetBeans/Ant builds. The README's download links name the latest published installers, so update them after each release is uploaded, not when the pom changes.
 
 ### Release pipeline flow
 
@@ -65,7 +65,7 @@ There are no default data files next to the jar: the app needs nothing but the j
 
 The bundled runtime contains only the modules `jdeps` reports (`java.base`, `java.desktop`, `java.logging`), about 54 MB after `jlink --compress=zip-6`.
 
-Installer settings: name `PlanetHour`, vendor *Sounak Choudhury*, description *Planetary hour calculator*. Windows: directory chooser, Start menu group `PlanetHour`, desktop shortcut. Linux: category and menu group `Utility`, shortcut. macOS: category `utilities`.
+Installer settings: name `PlanetHour`, vendor *Sounak Choudhury*, description *Planetary hour calculator*. Windows: directory chooser, Start menu group `PlanetHour`, desktop shortcut. Linux: category and menu group `Utility`, shortcut, DEB maintainer `Sounak Choudhury <admin@sounaks.com>`. macOS: category `utilities`.
 
 ### Icons
 
@@ -164,8 +164,7 @@ A single Maven build writes the jar more than once (the shade plugin replaces it
 2. **The UI is updated from a background thread.** The one-second updater thread changes Swing components outside the event dispatch thread. It has worked for years but can cause rare repaint glitches; move those updates into `SwingUtilities.invokeLater`.
 3. **Publishing is manual.** Jenkins only archives the installers. Uploading them to GitHub Releases happens outside Jenkins.
 4. **Installers are unsigned.** The MSI has no Authenticode signature (SmartScreen will warn). The DMG is not notarized: open it with right-click → *Open*.
-5. **The DEB's maintainer field reads `Sounak Choudhury <Unknown>`.** Add `--linux-deb-maintainer <email>` to the Ubuntu stage if you want a contact address in the package.
-6. **The icon source is 256×256.** The 512 and 1024 px macOS sizes are upscaled and slightly soft. Replace `art/PlanetHour-icon.png` with larger art and regenerate when available.
-7. **Test machines need Java 21**, and **Windows 7 is unsupported by Java 21.** See desktime's BUILD.md.
-8. **A dev build started while a release is packaging can end ABORTED.** Each agent has one executor, and each deploy stage's 5-minute timeout includes waiting for it (that is what lets a powered-off VM fail only its own copy). If the release holds `mac` or `win` for longer, the dev build times out before its unit tests. Rerun it when the release has finished.
-9. **The shipped jar is rebuilt, not the tested one.** The release gate guarantees the release's files passed `planethour dev`, but the release compiles them again on lin rather than reusing the jar that was on the test machines. Same sources and JDK give the same behaviour, but not a byte-identical jar.
+5. **The icon source is 256×256.** The 512 and 1024 px macOS sizes are upscaled and slightly soft. Replace `art/PlanetHour-icon.png` with larger art and regenerate when available.
+6. **Test machines need Java 21**, and **Windows 7 is unsupported by Java 21.** See desktime's BUILD.md.
+7. **A dev build started while a release is packaging can end ABORTED.** Each agent has one executor, and each deploy stage's 5-minute timeout includes waiting for it (that is what lets a powered-off VM fail only its own copy). If the release holds `mac` or `win` for longer, the dev build times out before its unit tests. Rerun it when the release has finished.
+8. **The shipped jar is rebuilt, not the tested one.** The release gate guarantees the release's files passed `planethour dev`, but the release compiles them again on lin rather than reusing the jar that was on the test machines. Same sources and JDK give the same behaviour, but not a byte-identical jar.
