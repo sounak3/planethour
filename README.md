@@ -60,9 +60,9 @@ In case you want to install the latest release, please download the appropriate 
 
 |  OS  | Download file |
 | ---  | ------------- |
-| Windows | [PlanetHour-2.0.msi](https://github.com/sounak3/planethour/releases/latest/download/PlanetHour-2.0.msi) |
-| Ubuntu / Debian | [planethour_2.0-release_amd64.deb](https://github.com/sounak3/planethour/releases/latest/download/planethour_2.0-release_amd64.deb) |
-| Mac OS (Intel; runs on Apple Silicon through Rosetta) | [PlanetHour-2.0.dmg](https://github.com/sounak3/planethour/releases/latest/download/PlanetHour-2.0.dmg) |
+| Windows | [PlanetHour-2.1.msi](https://github.com/sounak3/planethour/releases/latest/download/PlanetHour-2.1.msi) |
+| Ubuntu / Debian | [planethour_2.1-release_amd64.deb](https://github.com/sounak3/planethour/releases/latest/download/planethour_2.1-release_amd64.deb) |
+| Mac OS (Intel; runs on Apple Silicon through Rosetta) | [PlanetHour-2.1.dmg](https://github.com/sounak3/planethour/releases/latest/download/PlanetHour-2.1.dmg) |
 
 In case you're cloning this repository:
 ```bash
