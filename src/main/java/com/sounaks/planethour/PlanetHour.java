@@ -80,6 +80,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         threadStart();
         initTray();
         saveLocationWhenMoved();
+        keepCompactHeightWhenDecorated();
     }
     
     private final PlaceStore placeStore;
@@ -120,6 +121,7 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
     private Color tableBackground;
     private java.util.ArrayList<Point> selectedCells;
     private java.awt.Rectangle currBounds;
+    private int compactContentHeight, compactInsetTop;
     private Point currCell;
     private SystemTray tray;
     private java.awt.TrayIcon trayIcon;
@@ -1716,11 +1718,37 @@ public class PlanetHour extends javax.swing.JFrame implements Runnable {
         showTable = !showTable;
         if(!showTable) {
             currBounds = getBounds();
-            if(jScrollPane1.isShowing()) setBounds(getX(), getY(), getWidth(), jScrollPane1.getLocationOnScreen().y-getY()+6);
+            if(jScrollPane1.isShowing()) {
+                compactContentHeight = SwingUtilities.convertPoint(jScrollPane1, 0, 0, getRootPane()).y+6;
+                setCompactHeight();
+            }
         } else {
             currBounds.setLocation(getX(), getY());
             setBounds(currBounds);
         }
+    }
+
+    /**
+     * Sizes the collapsed window to the title bar plus the content above the
+     * planetary hour table
+     */
+    private void setCompactHeight() {
+        compactInsetTop = getInsets().top;
+        setBounds(getX(), getY(), getWidth(), compactInsetTop+compactContentHeight);
+    }
+
+    /**
+     * The window is collapsed at startup, before a Linux window manager has added
+     * its title bar, which then takes its height from the content. Resizes the
+     * collapsed window again whenever the title bar height changes.
+     */
+    private void keepCompactHeightWhenDecorated() {
+        getRootPane().addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if(!showTable && compactContentHeight > 0 && getInsets().top != compactInsetTop) setCompactHeight();
+            }
+        });
     }
     
     /**
