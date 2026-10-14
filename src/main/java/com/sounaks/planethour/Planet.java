@@ -1,7 +1,7 @@
 /*
  * File: Planet.java in java package com.sounaks.planethour is part of application
- * PlanetHour v1.0 - Planetary hour calculation software
- * Copyright (C) 2014 Sounak Choudhury
+ * PlanetHour - Planetary hour calculation software
+ * Copyright (C) 2014 - 2026 Sounak Choudhury
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
